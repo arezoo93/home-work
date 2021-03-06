@@ -20,7 +20,7 @@ func InitConfig() {
 	viper.SetConfigFile(configFilePath)
 	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Config file %s not found.\n%v", configFilePath, err))
+		panic(fmt.Errorf("Config file %s not found: %v", configFilePath, err))
 	}
 
 	Configs = new(configuration)

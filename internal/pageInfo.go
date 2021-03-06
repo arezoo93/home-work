@@ -53,7 +53,7 @@ func (p *Page) getContent() error {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("get status: %d", resp.StatusCode)
+		return fmt.Errorf("Get status: %d", resp.StatusCode)
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
@@ -84,7 +84,7 @@ func (p *Page) getPageTitle() {
 	startIndex := strings.Index(p.content, "<title>")
 	if startIndex >= 0 {
 		endIndex := strings.Index(p.content[startIndex:], "</title>")
-		fmt.Println("page title is:", p.content[startIndex+len("<title>"):startIndex+endIndex])
+		fmt.Println("Page title is:", p.content[startIndex+len("<title>"):startIndex+endIndex])
 	}
 }
 
@@ -92,7 +92,7 @@ func (p *Page) getPageHeadings() {
 	for i := 1; i <= app.Configs.MaxHeadingLevel; i++ {
 		heading := fmt.Sprintf("h%d", i)
 		count := strings.Count(p.content, "<"+heading)
-		fmt.Println("number of "+heading, ":", count)
+		fmt.Println("Number of "+heading, ":", count)
 	}
 }
 
@@ -100,8 +100,8 @@ func (p *Page) getLinks() {
 	totalLinks := strings.Count(p.content, "href=\"")
 	externalLinks := strings.Count(p.content, "href=\"http")
 	internalLinks := totalLinks - externalLinks
-	fmt.Println("number of external links", externalLinks)
-	fmt.Println("number of internal links", internalLinks)
+	fmt.Println("Number of external links", externalLinks)
+	fmt.Println("Number of internal links", internalLinks)
 }
 
 func (p *Page) hasLoginForm() {
