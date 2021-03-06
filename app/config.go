@@ -9,7 +9,8 @@ import (
 var Configs *configuration
 
 type configuration struct {
-	TimeOut time.Duration `default:"1s"`
+	TimeOut         time.Duration `default:"1s"`
+	MaxHeadingLevel int           `default:"4"`
 }
 
 func InitConfig() {

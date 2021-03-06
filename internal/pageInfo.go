@@ -5,6 +5,7 @@ import (
 	"home24/app"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -27,9 +28,10 @@ func (p *Page) GetInfo() error {
 		return err
 	}
 	p.getHTMLVersion()
-	p.getPageTitleVersion()
+	p.getPageTitle()
 	p.getPageHeadings()
 	p.getLinks()
+	p.hasLoginForm()
 	return nil
 }
 
@@ -40,7 +42,6 @@ func (p *Page) getContent() error {
 	}
 
 	resp, err := p.Client.Do(req)
-
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func (p *Page) getContent() error {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("get status: %d from smapp batch routing", resp.StatusCode)
+		return fmt.Errorf("get status: %d", resp.StatusCode)
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
@@ -65,17 +66,30 @@ func (p *Page) getContent() error {
 }
 
 func (p *Page) getHTMLVersion() {
-
+	pattern := regexp.MustCompile("(?i)<!doctype html>")
+	if pattern.MatchString(p.content) {
+		fmt.Println("HTML version is 5")
+	} else {
+		startIndex := strings.Index(p.content, "# HTML ")
+		if startIndex >= 0 {
+			startIndex = startIndex + len("# HTML ")
+		}
+		endIndex := strings.Index(p.content[startIndex:], " ")
+		fmt.Println("HTML version is", p.content[startIndex:startIndex+endIndex])
+	}
 }
 
-func (p *Page) getPageTitleVersion() {
+func (p *Page) getPageTitle() {
+
 	startIndex := strings.Index(p.content, "<title>")
-	endIndex := strings.Index(p.content[startIndex:], "</title>")
-	fmt.Println("page title is:", p.content[startIndex+len("<title>"):startIndex+endIndex])
+	if startIndex >= 0 {
+		endIndex := strings.Index(p.content[startIndex:], "</title>")
+		fmt.Println("page title is:", p.content[startIndex+len("<title>"):startIndex+endIndex])
+	}
 }
 
 func (p *Page) getPageHeadings() {
-	for i := 1; i < 5; i++ {
+	for i := 1; i <= app.Configs.MaxHeadingLevel; i++ {
 		heading := fmt.Sprintf("h%d", i)
 		count := strings.Count(p.content, "<"+heading)
 		fmt.Println("number of "+heading, ":", count)
@@ -90,8 +104,9 @@ func (p *Page) getLinks() {
 	fmt.Println("number of internal links", internalLinks)
 }
 
-func (p *Page) hasPageLoginForm(){
-	startIndex := strings.Index(p.content, "<form>")
-	endIndex := strings.Index(p.content[startIndex:], "</form>")
-	strings.Contains(p.content[startIndex+len("<form>"):startIndex+endIndex], "login")
+func (p *Page) hasLoginForm() {
+	pattern := regexp.MustCompile("(?is)<form.*?>.*login.*</form>")
+	if pattern.MatchString(p.content) {
+		fmt.Println("This page has login form")
+	}
 }

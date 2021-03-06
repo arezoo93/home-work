@@ -1,2 +1,3 @@
 configuration:
   timeOut: 10s
+  maxHeadingLevel: 4
